@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uncanny"
+version = "0.1.0"
+description = "CLI tool that detects AI-generated text with sentence-level scoring and multiple detection strategies"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+authors = [{ name = "Frank Chan" }]
+keywords = ["ai-detection", "gpt", "llm", "text-analysis", "cli"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    "typer>=0.9",
+    "rich>=13.0",
+]
+
+[project.optional-dependencies]
+ml = [
+    "torch>=2.0",
+    "transformers>=4.30",
+]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
+[project.scripts]
+uncanny = "uncanny.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/uncanny"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,28 @@
+Eng sync - March 3
+Attendees: me, Raj, Tina, Jorge, Mike (late as usual)
+
+- Q1 launch still targeting March 21 but honestly looking tight
+- Auth service migration ~80% done, blocked on the token refresh stuff
+  - Raj says 2 more days, prob means 4 lets be real
+- Frontend bundle size is way too big, 2.3MB (!!)
+  - TODO: ask Mike about tree shaking config, he mentioned something last week
+  - look into lazy loading the dashboard charts
+- Customer reported that thing with the CSV export again
+  - same bug as Dec?? check JIRA-4521
+  - TODO: repro on staging
+- Design wants to change the onboarding flow AGAIN
+  - Tina pushed back, said we don't have bandwidth
+  - compromise: just the first 2 screens for now
+- Infra costs up 15% this month
+  - Jorge thinks its the new caching layer
+  - TODO: check cloudwatch metrics, maybe we're over-provisioned
+- Hiring update: 2 candidates in pipeline for sr frontend role
+  - one looked really good, ex-Stripe
+- Next retro is Thursday, everyone pls actually fill out the board this time
+
+Action items:
+- me: CSV bug repro + bundle size investigation
+- Raj: finish token refresh by Wed
+- Tina: update roadmap doc
+- Jorge: infra cost breakdown
+- Mike: idk he left early

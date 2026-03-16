@@ -1,0 +1,12 @@
+Title: Seriously considering ditching [popular project management SaaS] after 2 years
+
+Ok so I've been using this tool for my team of like 12 people for almost two years now and honestly I'm at my breaking point. They just pushed an update last week that completely broke our workflow automations — no warning, no migration path, nothing. Just woke up Monday morning and everything was on fire.
+
+And like wtf is their support team even doing?? I submitted a ticket FOUR days ago and got one canned response that basically said "have you tried turning it off and on again." Yes dude I tried refreshing the page, that's not the issue, the issue is you literally removed an API endpoint we were depending on.
+
+The worst part is we're on their "Pro" plan at $18/seat/month which is honestly insane for software that breaks this often. My manager keeps asking why our sprint velocity tanked and I'm like... because our tools are held together with duct tape??
+
+Anyway has anyone migrated to Linear or Shortcut recently? Need something that won't randomly gaslight me into thinking I set up my workflows wrong. Thx in advance
+
+edit: typo
+edit2: they finally responded, "working as intended" lmaooo

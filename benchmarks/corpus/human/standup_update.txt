@@ -1,0 +1,20 @@
+standup - tues march 4
+
+yesterday:
+- finished the auth token refresh PR, waiting on review from raj
+- spent way too long debugging that flaky test in CI. turns out it was a timezone issue (of course it was)
+- started looking at the bundle size thing from the eng sync
+
+today:
+- gonna try to repro the CSV export bug that customer reported
+- need to set up a meeting w/ design about the onboarding changes
+- gonna pair with tina on the lazy loading stuff if she has time this afternoon
+- PR reviews — i owe marcus and jen reviews, will try to get to those before lunch
+
+blockers:
+- still blocked on the staging env being broken, jen said she'd look at it yesterday but haven't heard back
+- need access to the analytics dashboard admin panel, submitted the request last thurs and IT hasn't gotten back to me. gonna ping them again today
+
+notes:
+- gonna be ~15 min late to the retro on thurs, have a dentist appt
+- reminder that friday is no-meeting day pls don't schedule things thx

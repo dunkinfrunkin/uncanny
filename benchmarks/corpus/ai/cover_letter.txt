@@ -1,0 +1,12 @@
+Dear Hiring Manager,
+
+I am writing to express my interest in the Senior Software Engineer position at TechCorp, as advertised on your careers page. With over five years of experience in full-stack development and a proven track record of delivering high-quality software solutions, I am confident that my skills and expertise align perfectly with the requirements of this role.
+
+Throughout my career, I have demonstrated a strong ability to collaborate effectively with cross-functional teams, solve complex technical challenges, and consistently exceed expectations. In my current role at InnovateTech Solutions, I have successfully led the development of scalable microservices architectures that have improved system performance by 40%.
+
+I am particularly drawn to TechCorp's mission of leveraging technology to create meaningful impact. Your commitment to innovation and excellence resonates deeply with my professional values and aspirations. I am eager to bring my technical expertise, leadership skills, and passion for continuous learning to your dynamic team.
+
+I look forward to the opportunity to discuss how my background, skills, and enthusiasm can contribute to the continued success of TechCorp. Thank you for considering my application. Please do not hesitate to contact me at your earliest convenience.
+
+Sincerely,
+Alex Johnson

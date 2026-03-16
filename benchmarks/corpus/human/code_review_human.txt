@@ -1,0 +1,3 @@
+couple things — the nil check on line 47 won't actually protect you because the error is coming from the goroutine, not the caller. been bitten by this exact bug before. also why are we using a mutex here instead of a channel? the whole point of the refactor was to move away from shared state. not blocking on this but it's gonna come back to haunt us.
+
+oh and the test on line 89 is testing the mock not the actual behavior lol. i'd rather have no test than a test that gives false confidence. can we add a proper integration test that hits the real endpoint? i know it's slower but we've had two prod incidents from exactly this pattern.

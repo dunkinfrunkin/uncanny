@@ -1,0 +1,13 @@
+POST /api/v2/users
+
+This endpoint allows you to create a new user resource within the system. The following section outlines the request parameters, response format, and relevant error codes.
+
+Request Body: The request body must contain a JSON object with the following required fields: `name` (string), `email` (string), and `role` (string). Additionally, the following optional fields may be provided: `department` (string), `metadata` (object).
+
+It should be noted that the `email` field must be unique across all existing user records. Duplicate entries will result in a 409 Conflict response.
+
+Authentication: All requests to this endpoint require a valid Bearer token in the Authorization header. Unauthenticated requests will receive a 401 Unauthorized response.
+
+Response: Upon successful creation, the API returns a 201 Created status code along with the newly created user object, as demonstrated above in the response schema. The response includes a system-generated `id` field and a `created_at` timestamp.
+
+Error Handling: The following error codes may be returned: 400 (Bad Request), 401 (Unauthorized), 409 (Conflict), and 500 (Internal Server Error). Each error response includes a descriptive message to facilitate debugging.

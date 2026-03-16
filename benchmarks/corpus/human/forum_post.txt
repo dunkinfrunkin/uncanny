@@ -1,0 +1,3 @@
+ok so I've been banging my head against this for two days and I'm about to lose it. I have a Next.js app deployed on Vercel, everything works fine locally but in production the API routes just... hang. No error, no timeout, just infinite loading. I've tried: clearing the build cache, redeploying from scratch, downgrading to Node 18, adding explicit timeouts to my fetch calls. Nothing works.
+
+The weird thing is it was working fine until Thursday. I didn't push any changes between Wednesday night and Friday morning when I noticed it was broken. The only thing I can think of is Vercel did some infrastructure update? Has anyone else seen this? I'm losing paying customers over this and their support just keeps sending me docs links I've already read.

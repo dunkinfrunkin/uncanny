@@ -1,0 +1,28 @@
+Priya: hey did you see the slack from kevin
+Marcus: no what now
+Priya: he wants to move the deadline up by a WEEK
+Marcus: lol what
+Marcus: we're already behind
+Priya: i know right
+Priya: tbh i don't think he realizes how much work is left on the auth stuff
+Marcus: nah he definitely doesn't
+Marcus: gonna talk to him after standup
+Priya: good luck with that lol
+Priya: oh also can you review my PR when you get a sec? it's the cart refactor one
+Marcus: ya i saw it, gonna look after lunch
+Priya: ty
+Marcus: np
+Marcus: wait did we ever figure out the staging env thing
+Priya: oh shoot no
+Priya: i think jen was looking into it but idk if she fixed it
+Marcus: k i'll ping her
+Priya: sounds good
+Marcus: ok just talked to kevin
+Marcus: he said "it is what it is"
+Priya: incredible
+Priya: so helpful
+Marcus: right lmao
+Marcus: whatever we'll figure it out
+Priya: ya we always do
+Priya: ok back to this PR, talk later
+Marcus: later

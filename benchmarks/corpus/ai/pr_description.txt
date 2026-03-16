@@ -1,0 +1,19 @@
+## Description
+
+This PR addresses the need for improved user session management across the application. The changes include a complete refactoring of the authentication middleware to support token refresh workflows, along with updates to the session storage layer.
+
+## Changes Made
+
+- Refactored `AuthMiddleware` to implement automatic token refresh logic
+- Updated `SessionStore` class to support configurable TTL values
+- Added new `TokenRefreshService` with retry and exponential backoff mechanisms
+- Modified database schema to include `last_refreshed_at` column on the sessions table
+- Updated all relevant configuration files to reflect the new session parameters
+
+## Testing
+
+Comprehensive test coverage has been added to ensure the reliability and correctness of the implemented changes. This includes unit tests for the token refresh logic, integration tests for the middleware pipeline, and end-to-end tests validating the complete session lifecycle. All existing tests continue to pass without modification.
+
+## Additional Notes
+
+It is worth mentioning that this change is fully backward compatible and requires no action from downstream consumers. The migration script handles schema changes automatically. Please refer to the updated documentation for further details.

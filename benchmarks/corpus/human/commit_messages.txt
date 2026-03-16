@@ -1,0 +1,51 @@
+feat: add user preference endpoint with validation
+
+wip
+
+fix typo in migration file
+
+wip wip wip
+
+actually fix the migration this time (wrong column type smh)
+
+fix that stupid bug where sessions expire immediately
+
+chore: update dependencies, fix 3 security advisories
+
+refactor: extract auth middleware into separate module
+
+idk why this works but it does, don't touch it
+
+feat: implement CSV export for dashboard metrics
+
+Revert "feat: implement CSV export for dashboard metrics"
+
+feat: implement CSV export (for real this time, tested locally)
+
+fix: handle null values in user preferences (#847)
+
+please work
+
+PLEASE WORK
+
+ok it works
+
+chore: remove 400 lines of dead code that nobody knew about
+
+fix: prevent race condition in webhook handler
+closes #912, probably also fixes #908
+
+docs: update API docs for v2 endpoints
+
+friday 5pm deploy yolo
+
+fix: undo friday 5pm deploy yolo
+
+feat: add rate limiting to public API
+- 100 req/min for free tier
+- 1000 req/min for pro
+- configurable per-account overrides
+
+merge main into feature branch (pray emoji)
+
+style: run prettier, sorry for the massive diff

@@ -1,0 +1,21 @@
+2:47pm - prod alerts going off, 500s on /api/orders endpoint. ~5% of requests failing. great.
+
+2:52pm - checked grafana, errors started around 2:30. nothing deployed since this morning?? checked deploy log, confirmed last deploy was 10:14am
+
+2:58pm - looking at error logs. "connection refused" to orders-db. but the db is up?? I can connect from my machine fine
+
+3:05pm - wait its only failing for certain order IDs. not random. orders created after jan 15 specifically. wtf is happening
+
+3:12pm - OH WAIT. we migrated the orders table on jan 15. the new partition scheme. checking if the connection pool is routing to the right partition
+
+3:18pm - ok so the read replicas are behind. replication lag is at 47 seconds which is... not great. but that shouldn't cause connection refused errors
+
+3:24pm - talked to James, he said infra team did a config change on the connection pooler at 2:25pm. THERE IT IS. they reduced max connections from 200 to 50 "to save resources"
+
+3:31pm - nvm found it. the config change caused the pooler to drop existing connections and the reconnect logic has a bug where it doesn't retry on partition-routed queries. so it fails silently and returns connection refused.
+
+3:35pm - infra reverted the config change. errors dropping off.
+
+3:40pm - back to baseline. need to fix that retry bug tho or this will happen again
+
+TODO: file ticket for connection retry bug, add alert for connection pool config changes, yell at infra team (nicely)

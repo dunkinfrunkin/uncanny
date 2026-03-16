@@ -1,0 +1,13 @@
+hot take: most microservices architectures are just distributed monoliths with extra latency and a bigger AWS bill. thread 1/7
+
+2/ I've worked at 4 companies that "migrated to microservices" and exactly ONE of them actually needed it. The other 3 had like 5 developers and a single database. You don't need Kubernetes my dudes.
+
+3/ "But we need to scale independently!" Scale WHAT independently? Your user service that gets 200 requests per minute? A raspberry pi could handle that.
+
+4/ The dirty secret nobody talks about: the operational complexity of running 47 services is WAY harder than maintaining a well-structured monolith. You're not Netflix. You don't have Netflix problems.
+
+5/ And don't even get me started on "but different teams can deploy independently" — cool so now instead of one deploy pipeline you have 47 and nobody knows which version of what is running in prod. Progress!
+
+6/ Look I'm not saying microservices are always bad. If you're at genuine scale with genuine team boundaries, go for it. But if your startup has 8 engineers and you're drawing service boundary diagrams... maybe just ship the feature?
+
+7/ Anyway that's my rant. The boring answer is always "it depends" but the REAL answer is probably "you don't need it yet." Build the monolith. Split it later when you actually feel the pain. End thread.
