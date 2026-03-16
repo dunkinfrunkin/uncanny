@@ -18,8 +18,11 @@ def test_combine_weighted():
         AnalyzerResult(name="burstiness", score=0.5, sentence_scores=[], metadata={}),
     ]
     result = combine(results)
-    # compression weight 0.55, burstiness weight 0.25
-    expected = (0.9 * 0.55 + 0.5 * 0.25) / (0.55 + 0.25)
+    # compression weight 0.65, burstiness dynamically weighted
+    # When compression=0.9, confidence = abs(0.9-0.5)*2 = 0.8
+    # burstiness weight = 0.20 * (1 - 0.8*0.6) = 0.20 * 0.52 = 0.104
+    burst_w = 0.20 * (1.0 - abs(0.9 - 0.5) * 2 * 0.6)
+    expected = (0.9 * 0.65 + 0.5 * burst_w) / (0.65 + burst_w)
     assert abs(result.score - expected) < 0.01
 
 
