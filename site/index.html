@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uncanny — AI Text Detection CLI</title>
+  <meta name="description" content="Detect AI-generated text from your terminal. Sentence-level scoring, multiple detection strategies, runs locally. Open source.">
+  <meta property="og:title" content="Uncanny — AI Text Detection CLI">
+  <meta property="og:description" content="91.7% accuracy. 5.6% false positive rate. Runs locally. Open source.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://dunkinfrunkin.github.io/uncanny">
+  <meta name="twitter:card" content="summary_large_image">
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #222;
+      --text: #e5e5e5;
+      --text-dim: #888;
+      --accent: #60a5fa;
+      --green: #4ade80;
+      --yellow: #facc15;
+      --red: #f87171;
+      --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Nav */
+    nav {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    nav .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    nav .logo {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      text-decoration: none;
+    }
+    nav .links {
+      display: flex;
+      gap: 24px;
+    }
+    nav a {
+      color: var(--text-dim);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.15s;
+    }
+    nav a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+    .hero h1 {
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      margin-bottom: 16px;
+      line-height: 1.1;
+    }
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p {
+      font-size: 20px;
+      color: var(--text-dim);
+      max-width: 600px;
+      margin: 0 auto 32px;
+    }
+    .hero .cta {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.15s;
+      font-family: var(--font-mono);
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--text-dim); }
+
+    /* Terminal demo */
+    .terminal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      margin: 48px auto;
+      max-width: 680px;
+      overflow: hidden;
+    }
+    .terminal-header {
+      background: #1a1a1a;
+      padding: 12px 16px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .terminal-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+    }
+    .terminal-dot.r { background: #ff5f57; }
+    .terminal-dot.y { background: #febc2e; }
+    .terminal-dot.g { background: #28c840; }
+    .terminal-title {
+      flex: 1;
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+    }
+    .terminal-body {
+      padding: 20px 24px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.7;
+      overflow-x: auto;
+    }
+    .terminal-body .prompt { color: var(--green); }
+    .terminal-body .cmd { color: var(--text); }
+    .terminal-body .dim { color: var(--text-dim); }
+    .terminal-body .score-high { color: var(--red); }
+    .terminal-body .score-mid { color: var(--yellow); }
+    .terminal-body .score-low { color: var(--green); }
+    .terminal-body .bar-filled { color: var(--accent); }
+    .terminal-body .bar-empty { color: #333; }
+
+    /* Stats */
+    .stats {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 40px;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--accent);
+    }
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    /* Comparison */
+    .comparison {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .comparison h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-align: center;
+    }
+    .comparison .subtitle {
+      color: var(--text-dim);
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 14px;
+    }
+    th {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+      color: var(--text-dim);
+      font-weight: 600;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    tr.highlight td {
+      background: rgba(96, 165, 250, 0.05);
+      font-weight: 600;
+    }
+    .winner { color: var(--green); font-weight: 700; }
+    .loser { color: var(--text-dim); }
+
+    /* Features */
+    .features {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .features h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+    .feature {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .feature h3 {
+      font-size: 16px;
+      margin-bottom: 8px;
+    }
+    .feature p {
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+
+    /* Install */
+    .install {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+    }
+    .install h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 24px;
+    }
+    .install-cmd {
+      display: inline-block;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 32px;
+      font-family: var(--font-mono);
+      font-size: 16px;
+      color: var(--accent);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .install-cmd:hover { border-color: var(--accent); }
+    .install-cmd .dollar { color: var(--text-dim); margin-right: 8px; }
+    .install-methods {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+
+    /* Docs */
+    .docs {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+    .docs h2 {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 32px;
+      text-align: center;
+    }
+    .docs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .doc-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+    .doc-section h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--accent);
+    }
+    .doc-section pre {
+      background: #0d0d0d;
+      border-radius: 6px;
+      padding: 12px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .doc-section p {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      text-align: center;
+      color: var(--text-dim);
+      font-size: 14px;
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 32px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .features-grid { grid-template-columns: 1fr; }
+      .docs-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container">
+      <a href="/" class="logo">uncanny</a>
+      <div class="links">
+        <a href="#benchmarks">Benchmarks</a>
+        <a href="#docs">Docs</a>
+        <a href="https://github.com/dunkinfrunkin/uncanny">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container">
+      <h1>Detect AI text.<br><span>From your terminal.</span></h1>
+      <p>Open-source CLI with sentence-level scoring and multiple detection strategies. Runs locally. No API keys. No data leaves your machine.</p>
+      <div class="cta">
+        <a href="#install" class="btn btn-primary">pip install uncanny</a>
+        <a href="https://github.com/dunkinfrunkin/uncanny" class="btn btn-secondary">View on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Terminal Demo -->
+  <div class="container">
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dot r"></div>
+        <div class="terminal-dot y"></div>
+        <div class="terminal-dot g"></div>
+        <div class="terminal-title">uncanny</div>
+      </div>
+      <div class="terminal-body">
+<span class="prompt">$</span> <span class="cmd">uncanny scan proposal.md</span>
+
+  <span class="dim">Uncanny Analysis &mdash; proposal.md</span>
+  <span class="dim">&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;</span>
+
+  Overall Score: <span class="score-mid">0.73</span> (likely AI-generated)
+
+  <span class="bar-filled">&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;&block;</span><span class="bar-empty">&block;&block;&block;&block;&block;&block;&block;&block;</span>  73% AI
+
+  <span class="dim">Sentence Breakdown:</span>
+   <span class="score-high">0.91</span> &boxv; The implementation of this feature requires
+        &boxv; careful consideration of several patterns.
+   <span class="score-low">0.42</span> &boxv; I tried like three approaches before landing
+        &boxv; on this one, honestly.
+   <span class="score-high">0.88</span> &boxv; By leveraging the existing infrastructure, we
+        &boxv; can ensure seamless integration.
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <section class="stats">
+    <div class="container">
+      <div class="stats-grid">
+        <div>
+          <div class="stat-value">91.7%</div>
+          <div class="stat-label">Accuracy</div>
+        </div>
+        <div>
+          <div class="stat-value">5.6%</div>
+          <div class="stat-label">False positive rate</div>
+        </div>
+        <div>
+          <div class="stat-value">8ms</div>
+          <div class="stat-label">Per sample</div>
+        </div>
+        <div>
+          <div class="stat-value">0</div>
+          <div class="stat-label">API calls</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Comparison -->
+  <section class="comparison" id="benchmarks">
+    <div class="container">
+      <h2>Benchmarks</h2>
+      <p class="subtitle">Tested against 36 labeled samples. Run them yourself: <code>uncanny bench --compare</code></p>
+      <table>
+        <thead>
+          <tr>
+            <th>Tool</th>
+            <th>Accuracy</th>
+            <th>AI Detected</th>
+            <th>Human Cleared</th>
+            <th>False Accusations</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="highlight">
+            <td>Uncanny</td>
+            <td class="winner">91.7%</td>
+            <td>88.9%</td>
+            <td class="winner">94.4%</td>
+            <td class="winner">5.6%</td>
+          </tr>
+          <tr>
+            <td>Zippy</td>
+            <td class="loser">80.6%</td>
+            <td>100%</td>
+            <td class="loser">61.1%</td>
+            <td class="loser">38.9%</td>
+          </tr>
+          <tr>
+            <td>GPTZero</td>
+            <td colspan="4" style="color: var(--text-dim); font-style: italic;">SaaS only &mdash; sends your text to their servers</td>
+          </tr>
+          <tr>
+            <td>Originality.ai</td>
+            <td colspan="4" style="color: var(--text-dim); font-style: italic;">SaaS only &mdash; $30/mo minimum</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <h2>How it works</h2>
+      <div class="features-grid">
+        <div class="feature">
+          <h3>Compression Analysis</h3>
+          <p>AI text is predictable and compresses better. Cross-compress against AI and human preludes using LZMA + zlib to detect statistical patterns.</p>
+        </div>
+        <div class="feature">
+          <h3>Burstiness Analysis</h3>
+          <p>Humans vary naturally &mdash; short sentences mixed with long, simple with complex. AI is uniformly smooth. We measure the variance.</p>
+        </div>
+        <div class="feature">
+          <h3>Ensemble Scoring</h3>
+          <p>Confidence-aware dynamic weighting. Strong signals dominate. Weak signals only matter as tiebreakers. Better than fixed averaging.</p>
+        </div>
+        <div class="feature">
+          <h3>Sentence-Level</h3>
+          <p>Not just "this doc is AI." See exactly which sentences triggered detection and at what confidence. Useful for mixed-authorship text.</p>
+        </div>
+        <div class="feature">
+          <h3>CI Integration</h3>
+          <p>Set a threshold, get an exit code. JSON output for parsing. Drop it in your pipeline to catch AI-generated PRs, docs, or submissions.</p>
+        </div>
+        <div class="feature">
+          <h3>Zero Dependencies*</h3>
+          <p>Core analyzers use Python stdlib only (lzma, zlib). Rich + Typer for CLI. ML models optional. *The asterisk is honest.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section class="install" id="install">
+    <div class="container">
+      <h2>Get started in 10 seconds</h2>
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install uncanny')">
+        <span class="dollar">$</span> pip install uncanny
+      </div>
+      <div class="install-methods">
+        <div style="color: var(--text-dim); font-size: 14px;">
+          or <code style="color: var(--accent);">brew tap dunkinfrunkin/tap && brew install uncanny</code>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Docs -->
+  <section class="docs" id="docs">
+    <div class="container">
+      <h2>Documentation</h2>
+      <div class="docs-grid">
+        <div class="doc-section">
+          <h3>Basic Usage</h3>
+          <p>Scan files, strings, or stdin:</p>
+          <pre><span style="color: var(--green)">$</span> uncanny scan report.md
+<span style="color: var(--green)">$</span> uncanny scan --text "Your text here"
+<span style="color: var(--green)">$</span> cat essay.txt | uncanny scan</pre>
+        </div>
+        <div class="doc-section">
+          <h3>Output Formats</h3>
+          <p>Terminal (default), JSON, or summary:</p>
+          <pre><span style="color: var(--green)">$</span> uncanny scan file.md --format json
+<span style="color: var(--green)">$</span> uncanny scan file.md --format summary
+<span style="color: var(--dim)">0.73 (likely_ai)</span></pre>
+        </div>
+        <div class="doc-section">
+          <h3>Speed vs Depth</h3>
+          <p>Trade speed for accuracy:</p>
+          <pre><span style="color: var(--green)">$</span> uncanny scan file.md --fast
+<span style="color: var(--dim)"># compression only, ~instant</span>
+
+<span style="color: var(--green)">$</span> uncanny scan file.md --deep
+<span style="color: var(--dim)"># all analyzers (needs uncanny[ml])</span></pre>
+        </div>
+        <div class="doc-section">
+          <h3>CI / Pipelines</h3>
+          <p>Exit code 1 if score exceeds threshold:</p>
+          <pre><span style="color: var(--green)">$</span> uncanny scan pr.md --threshold 0.7
+<span style="color: var(--green)">$</span> echo $?
+<span style="color: var(--red)">1</span>
+
+<span style="color: var(--dim)"># JSON for parsing</span>
+<span style="color: var(--green)">$</span> uncanny scan pr.md --format json \
+  | jq '.score'</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">
+      <p>MIT License &middot; <a href="https://github.com/dunkinfrunkin/uncanny">GitHub</a> &middot; <a href="https://github.com/dunkinfrunkin/uncanny/blob/main/CONTRIBUTING.md">Contributing</a></p>
+    </div>
+  </footer>
+</body>
+</html>
