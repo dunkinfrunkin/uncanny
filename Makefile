@@ -1,4 +1,4 @@
-.PHONY: install test bench bench-json bench-fast lint clean
+.PHONY: install test bench bench-json bench-fast lint clean update-homebrew
 
 install:
 	pip install -e ".[dev]"
@@ -14,6 +14,9 @@ bench-json:
 
 bench-fast:
 	uncanny bench --analyzers compression
+
+update-homebrew:
+	./scripts/update-homebrew.sh $(VERSION)
 
 clean:
 	rm -rf .pytest_cache __pycache__ src/uncanny/__pycache__ .venv dist build *.egg-info
