@@ -12,7 +12,7 @@ const config: Config = {
   },
 
   url: 'https://dunkinfrunkin.github.io',
-  baseUrl: '/uncanny/',
+  baseUrl: '/docs/',
 
   organizationName: 'dunkinfrunkin',
   projectName: 'uncanny',
