@@ -18,12 +18,29 @@ from uncanny import ensemble
 from uncanny.output import terminal as term_output
 from uncanny.output import json_output
 
+def _version_callback(value: bool):
+    if value:
+        print(f"uncanny {__version__}")
+        raise typer.Exit()
+
+
 app = typer.Typer(
     name="uncanny",
     help="Detect AI-generated text with sentence-level scoring.",
     no_args_is_help=True,
     add_completion=False,
+    callback=lambda version: None,
 )
+
+
+@app.callback()
+def main(
+    version: bool = typer.Option(
+        False, "--version", "-V", callback=_version_callback, is_eager=True,
+        help="Show version and exit.",
+    ),
+) -> None:
+    """Detect AI-generated text with sentence-level scoring."""
 console = Console()
 
 
@@ -81,7 +98,11 @@ def _read_input(
         if not file.exists():
             console.print(f"[red]File not found: {file}[/]")
             raise typer.Exit(1)
-        return file.read_text(encoding="utf-8"), str(file)
+        try:
+            return file.read_text(encoding="utf-8"), str(file)
+        except UnicodeDecodeError:
+            console.print(f"[red]Cannot read {file}: not a text file or encoding issue.[/]")
+            raise typer.Exit(1)
 
     # Try stdin
     if not sys.stdin.isatty():
