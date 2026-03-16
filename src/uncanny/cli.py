@@ -202,6 +202,25 @@ def bench(
 
 
 @app.command()
+def serve(
+    port: int = typer.Option(7272, "--port", "-p", help="Port to serve on"),
+    no_open: bool = typer.Option(False, "--no-open", help="Don't auto-open browser"),
+) -> None:
+    """Launch the web visualizer for interactive analysis."""
+    from uncanny.web.server import run_server
+
+    server, url = run_server(port=port, open_browser=not no_open)
+    console.print(f"  Uncanny Visualizer running at [bold cyan]{url}[/]")
+    console.print("  Press Ctrl+C to stop.\n")
+
+    try:
+        server.serve_forever()
+    except KeyboardInterrupt:
+        console.print("\n  Stopped.")
+        server.shutdown()
+
+
+@app.command()
 def version() -> None:
     """Show version."""
     console.print(f"uncanny {__version__}")

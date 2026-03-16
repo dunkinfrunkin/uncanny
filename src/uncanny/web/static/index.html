@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Uncanny Visualizer</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1a1a1a;
+      --border: #222;
+      --text: #e5e5e5;
+      --dim: #666;
+      --accent: #60a5fa;
+      --green: #4ade80;
+      --yellow: #facc15;
+      --red: #f87171;
+      --mono: 'SF Mono', 'Cascadia Code', 'Fira Code', monospace;
+      --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+    }
+
+    /* Layout */
+    .app { max-width: 1100px; margin: 0 auto; padding: 24px; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    header h1 {
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    header .badge {
+      font-size: 12px;
+      color: var(--dim);
+      border: 1px solid var(--border);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-family: var(--mono);
+    }
+
+    /* Input area */
+    .input-area {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.6;
+      resize: vertical;
+      outline: none;
+    }
+    textarea:focus { border-color: var(--accent); }
+    textarea::placeholder { color: var(--dim); }
+
+    .input-controls {
+      display: flex;
+      gap: 12px;
+      margin-top: 12px;
+      align-items: center;
+    }
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: var(--mono);
+      transition: all 0.15s;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--bg);
+    }
+    .btn-primary:hover { opacity: 0.9; }
+    .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-secondary {
+      background: var(--surface2);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { border-color: var(--dim); }
+    .spacer { flex: 1; }
+    .word-count {
+      font-size: 13px;
+      color: var(--dim);
+      font-family: var(--mono);
+    }
+
+    /* Results */
+    .results { display: none; }
+    .results.visible { display: block; }
+
+    /* Overall score */
+    .score-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 32px;
+      align-items: center;
+    }
+    .score-ring {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      flex-shrink: 0;
+    }
+    .score-ring svg { transform: rotate(-90deg); }
+    .score-ring .bg { stroke: var(--border); }
+    .score-ring .fill { transition: stroke-dashoffset 0.8s ease; }
+    .score-ring .value {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--mono);
+      font-size: 28px;
+      font-weight: 800;
+    }
+    .score-ring .label-text {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: var(--dim);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .score-details { flex: 1; }
+    .score-details h2 {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+    .analyzer-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .analyzer-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+    .analyzer-name {
+      width: 100px;
+      color: var(--dim);
+      font-family: var(--mono);
+    }
+    .analyzer-bar {
+      flex: 1;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .analyzer-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+    }
+    .analyzer-score {
+      width: 40px;
+      font-family: var(--mono);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* Heatmap */
+    .heatmap-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+    .heatmap-section h3 {
+      font-size: 16px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .heatmap-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 12px;
+      color: var(--dim);
+      margin-left: auto;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-dot {
+      width: 10px; height: 10px;
+      border-radius: 2px;
+    }
+
+    /* Sentence heatmap */
+    .sentence-list { display: flex; flex-direction: column; gap: 2px; }
+    .sentence-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .sentence-row:hover { background: rgba(255,255,255,0.03); }
+    .sentence-score {
+      font-family: var(--mono);
+      font-size: 14px;
+      font-weight: 700;
+      width: 40px;
+      flex-shrink: 0;
+      padding-top: 2px;
+    }
+    .sentence-bar {
+      width: 4px;
+      min-height: 20px;
+      border-radius: 2px;
+      flex-shrink: 0;
+      align-self: stretch;
+    }
+    .sentence-text {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* Word heatmap */
+    .word-heatmap {
+      line-height: 2.2;
+      font-size: 16px;
+    }
+    .word-heatmap .word {
+      display: inline;
+      padding: 2px 1px;
+      border-radius: 3px;
+      cursor: default;
+      transition: outline 0.1s;
+    }
+    .word-heatmap .word:hover {
+      outline: 1px solid rgba(255,255,255,0.2);
+    }
+    .word-heatmap .sentence-break {
+      display: inline-block;
+      width: 8px;
+    }
+
+    /* Tooltip */
+    .tooltip {
+      display: none;
+      position: fixed;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-family: var(--mono);
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    /* Loading */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: var(--dim);
+    }
+    .loading.visible { display: block; }
+    .spinner {
+      display: inline-block;
+      width: 24px; height: 24px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 768px) {
+      .score-card { flex-direction: column; text-align: center; }
+      .analyzer-name { width: 80px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>uncanny</h1>
+      <span class="badge">visualizer</span>
+    </header>
+
+    <div class="input-area">
+      <textarea id="input" placeholder="Paste text to analyze..."></textarea>
+      <div class="input-controls">
+        <button class="btn btn-primary" id="analyze-btn" onclick="analyze()">Analyze</button>
+        <button class="btn btn-secondary" onclick="loadExample()">Load Example</button>
+        <span class="spacer"></span>
+        <span class="word-count" id="word-count">0 words</span>
+      </div>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p style="margin-top: 12px">Analyzing...</p>
+    </div>
+
+    <div class="results" id="results">
+      <!-- Score card -->
+      <div class="score-card">
+        <div class="score-ring">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle class="bg" cx="60" cy="60" r="50" fill="none" stroke-width="8"/>
+            <circle class="fill" id="score-arc" cx="60" cy="60" r="50" fill="none" stroke-width="8"
+              stroke-dasharray="314" stroke-dashoffset="314" stroke-linecap="round"/>
+          </svg>
+          <span class="value" id="score-value">0</span>
+          <span class="label-text">AI PROB</span>
+        </div>
+        <div class="score-details">
+          <h2 id="score-label">—</h2>
+          <div class="analyzer-bars" id="analyzer-bars"></div>
+        </div>
+      </div>
+
+      <!-- Sentence heatmap -->
+      <div class="heatmap-section">
+        <h3>
+          Sentence Analysis
+          <div class="heatmap-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> AI (0.8+)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div> Mixed</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Human (&lt;0.5)</div>
+          </div>
+        </h3>
+        <div class="sentence-list" id="sentence-list"></div>
+      </div>
+
+      <!-- Word heatmap -->
+      <div class="heatmap-section">
+        <h3>
+          Word-Level Heatmap
+          <div class="heatmap-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> High AI signal</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> Low AI signal</div>
+          </div>
+        </h3>
+        <div class="word-heatmap" id="word-heatmap"></div>
+      </div>
+    </div>
+
+    <div class="tooltip" id="tooltip"></div>
+  </div>
+
+  <script>
+    const input = document.getElementById('input');
+    const results = document.getElementById('results');
+    const loading = document.getElementById('loading');
+    const tooltip = document.getElementById('tooltip');
+
+    // Word count
+    input.addEventListener('input', () => {
+      const words = input.value.trim().split(/\s+/).filter(Boolean).length;
+      document.getElementById('word-count').textContent = `${words} words`;
+    });
+
+    // Color helpers
+    function scoreColor(score) {
+      if (score >= 0.8) return 'var(--red)';
+      if (score >= 0.5) return 'var(--yellow)';
+      return 'var(--green)';
+    }
+
+    function scoreColorRGB(score) {
+      // Gradient: green (0) -> yellow (0.5) -> red (1.0)
+      if (score <= 0.5) {
+        const t = score / 0.5;
+        return `rgb(${Math.round(74 + (250 - 74) * t)}, ${Math.round(222 - (222 - 204) * t)}, ${Math.round(128 - (128 - 21) * t)})`;
+      } else {
+        const t = (score - 0.5) / 0.5;
+        return `rgb(${Math.round(250 - (250 - 248) * t)}, ${Math.round(204 - (204 - 113) * t)}, ${Math.round(21 - (21 - 113) * t * 0.5)})`;
+      }
+    }
+
+    function scoreBg(score, alpha = 0.15) {
+      if (score >= 0.8) return `rgba(248, 113, 113, ${alpha})`;
+      if (score >= 0.5) return `rgba(250, 204, 21, ${alpha})`;
+      return `rgba(74, 222, 128, ${alpha})`;
+    }
+
+    function labelText(label) {
+      return {
+        'ai_generated': 'AI Generated',
+        'likely_ai': 'Likely AI Generated',
+        'mixed': 'Mixed Signals',
+        'likely_human': 'Likely Human Written',
+        'human': 'Human Written',
+      }[label] || label;
+    }
+
+    async function analyze() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      const btn = document.getElementById('analyze-btn');
+      btn.disabled = true;
+      results.classList.remove('visible');
+      loading.classList.add('visible');
+
+      try {
+        const resp = await fetch('/api/analyze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        const data = await resp.json();
+
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+
+        renderResults(data);
+      } catch (e) {
+        alert('Analysis failed: ' + e.message);
+      } finally {
+        btn.disabled = false;
+        loading.classList.remove('visible');
+      }
+    }
+
+    function renderResults(data) {
+      // Score ring
+      const score = data.score;
+      const arc = document.getElementById('score-arc');
+      const circumference = 314;
+      arc.style.strokeDashoffset = circumference - (circumference * score);
+      arc.style.stroke = scoreColor(score);
+
+      document.getElementById('score-value').textContent = Math.round(score * 100);
+      document.getElementById('score-value').style.color = scoreColor(score);
+      document.getElementById('score-label').textContent = labelText(data.label);
+
+      // Analyzer bars
+      const barsEl = document.getElementById('analyzer-bars');
+      barsEl.innerHTML = '';
+      for (const [name, info] of Object.entries(data.analyzers)) {
+        const s = info.score;
+        barsEl.innerHTML += `
+          <div class="analyzer-row">
+            <span class="analyzer-name">${name}</span>
+            <div class="analyzer-bar">
+              <div class="analyzer-bar-fill" style="width:${s * 100}%;background:${scoreColor(s)}"></div>
+            </div>
+            <span class="analyzer-score" style="color:${scoreColor(s)}">${s.toFixed(2)}</span>
+          </div>`;
+      }
+
+      // Sentence list
+      const sentEl = document.getElementById('sentence-list');
+      sentEl.innerHTML = '';
+      for (const sent of data.sentences) {
+        const s = sent.score;
+        sentEl.innerHTML += `
+          <div class="sentence-row" style="background:${scoreBg(s, 0.04)}">
+            <span class="sentence-score" style="color:${scoreColor(s)}">${s.toFixed(2)}</span>
+            <div class="sentence-bar" style="background:${scoreColor(s)}"></div>
+            <span class="sentence-text">${escapeHtml(sent.text)}</span>
+          </div>`;
+      }
+
+      // Word heatmap — color each word based on its sentence's score
+      const heatmap = document.getElementById('word-heatmap');
+      heatmap.innerHTML = '';
+      for (const sent of data.sentences) {
+        const words = sent.text.split(/\s+/);
+        for (const word of words) {
+          const span = document.createElement('span');
+          span.className = 'word';
+          span.textContent = word + ' ';
+          span.style.background = scoreBg(sent.score, 0.25);
+          span.style.color = scoreColorRGB(sent.score);
+          span.dataset.score = sent.score.toFixed(2);
+
+          span.addEventListener('mouseenter', (e) => {
+            tooltip.style.display = 'block';
+            tooltip.textContent = `Sentence score: ${sent.score.toFixed(2)}`;
+            tooltip.style.left = e.clientX + 12 + 'px';
+            tooltip.style.top = e.clientY - 30 + 'px';
+          });
+          span.addEventListener('mouseleave', () => {
+            tooltip.style.display = 'none';
+          });
+
+          heatmap.appendChild(span);
+        }
+        // Sentence break
+        const br = document.createElement('span');
+        br.className = 'sentence-break';
+        heatmap.appendChild(br);
+      }
+
+      results.classList.add('visible');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function loadExample() {
+      input.value = `The implementation of this feature requires careful consideration of several architectural patterns to ensure maintainability and scalability. By leveraging existing infrastructure components, we can achieve seamless integration while minimizing technical debt. This approach provides a robust and comprehensive solution that addresses the identified requirements effectively.
+
+I tried like three different approaches before landing on this one, honestly. The weird part was the timeout — still not 100% sure why it happens on cold starts but whatever, the retry logic handles it.
+
+Furthermore, the modular design enables future extensibility and facilitates testing across multiple deployment scenarios. It is important to note that the proposed architecture follows industry best practices and established design principles.
+
+Dave suggested using Redis but that felt like overkill for what we need right now. Oh also, the tests are flaky on CI sometimes because of the mock server timing out, been meaning to fix that for weeks.`;
+      input.dispatchEvent(new Event('input'));
+    }
+
+    // Ctrl+Enter to analyze
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        analyze();
+      }
+    });
+  </script>
+</body>
+</html>
