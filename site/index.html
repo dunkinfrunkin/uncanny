@@ -366,7 +366,7 @@
       <a href="/" class="logo">uncanny</a>
       <div class="links">
         <a href="#benchmarks">Benchmarks</a>
-        <a href="#docs">Docs</a>
+        <a href="/uncanny/docs/">Docs</a>
         <a href="https://github.com/dunkinfrunkin/uncanny">GitHub</a>
       </div>
     </div>
@@ -377,7 +377,7 @@
       <h1>Detect AI text.<br><span>From your terminal.</span></h1>
       <p>Open-source CLI with sentence-level scoring and multiple detection strategies. Runs locally. No API keys. No data leaves your machine.</p>
       <div class="cta">
-        <a href="#install" class="btn btn-primary">pip install uncanny</a>
+        <a href="#install" class="btn btn-primary">brew install uncanny</a>
         <a href="https://github.com/dunkinfrunkin/uncanny" class="btn btn-secondary">View on GitHub</a>
       </div>
     </div>
@@ -517,57 +517,23 @@
   <section class="install" id="install">
     <div class="container">
       <h2>Get started in 10 seconds</h2>
-      <div class="install-cmd" onclick="navigator.clipboard.writeText('pip install uncanny')">
-        <span class="dollar">$</span> pip install uncanny
+      <div class="install-cmd" onclick="navigator.clipboard.writeText('brew tap dunkinfrunkin/tap && brew install uncanny')">
+        <span class="dollar">$</span> brew install uncanny
       </div>
       <div class="install-methods">
         <div style="color: var(--text-dim); font-size: 14px;">
-          or <code style="color: var(--accent);">brew tap dunkinfrunkin/tap && brew install uncanny</code>
+          <code style="color: var(--accent);">brew tap dunkinfrunkin/tap</code> first, or <code style="color: var(--accent);">pip install uncanny</code>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Docs -->
-  <section class="docs" id="docs">
+  <!-- Docs CTA -->
+  <section class="docs" id="docs" style="text-align: center;">
     <div class="container">
       <h2>Documentation</h2>
-      <div class="docs-grid">
-        <div class="doc-section">
-          <h3>Basic Usage</h3>
-          <p>Scan files, strings, or stdin:</p>
-          <pre><span style="color: var(--green)">$</span> uncanny scan report.md
-<span style="color: var(--green)">$</span> uncanny scan --text "Your text here"
-<span style="color: var(--green)">$</span> cat essay.txt | uncanny scan</pre>
-        </div>
-        <div class="doc-section">
-          <h3>Output Formats</h3>
-          <p>Terminal (default), JSON, or summary:</p>
-          <pre><span style="color: var(--green)">$</span> uncanny scan file.md --format json
-<span style="color: var(--green)">$</span> uncanny scan file.md --format summary
-<span style="color: var(--dim)">0.73 (likely_ai)</span></pre>
-        </div>
-        <div class="doc-section">
-          <h3>Speed vs Depth</h3>
-          <p>Trade speed for accuracy:</p>
-          <pre><span style="color: var(--green)">$</span> uncanny scan file.md --fast
-<span style="color: var(--dim)"># compression only, ~instant</span>
-
-<span style="color: var(--green)">$</span> uncanny scan file.md --deep
-<span style="color: var(--dim)"># all analyzers (needs uncanny[ml])</span></pre>
-        </div>
-        <div class="doc-section">
-          <h3>CI / Pipelines</h3>
-          <p>Exit code 1 if score exceeds threshold:</p>
-          <pre><span style="color: var(--green)">$</span> uncanny scan pr.md --threshold 0.7
-<span style="color: var(--green)">$</span> echo $?
-<span style="color: var(--red)">1</span>
-
-<span style="color: var(--dim)"># JSON for parsing</span>
-<span style="color: var(--green)">$</span> uncanny scan pr.md --format json \
-  | jq '.score'</pre>
-        </div>
-      </div>
+      <p style="color: var(--text-dim); margin-bottom: 24px;">Full docs with CLI reference, analyzer deep-dives, CI integration guides, and more.</p>
+      <a href="/uncanny/docs/" class="btn btn-primary" style="font-size: 16px; padding: 14px 32px;">Read the Docs</a>
     </div>
   </section>
 

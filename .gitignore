@@ -29,3 +29,8 @@ secrets.*
 .idea/
 .vscode/
 *.iml
+
+# Docusaurus
+docs/node_modules/
+docs/build/
+docs/.docusaurus/
