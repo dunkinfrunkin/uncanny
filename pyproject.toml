@@ -10,6 +10,7 @@ readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
 authors = [{ name = "Frank Chan" }]
+urls = { Homepage = "https://github.com/dunkinfrunkin/uncanny", Repository = "https://github.com/dunkinfrunkin/uncanny", Issues = "https://github.com/dunkinfrunkin/uncanny/issues" }
 keywords = ["ai-detection", "gpt", "llm", "text-analysis", "cli"]
 classifiers = [
     "Development Status :: 3 - Alpha",
